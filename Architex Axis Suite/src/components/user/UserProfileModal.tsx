@@ -50,7 +50,7 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
   useEffect(() => {
     // Initialize local state when user prop changes (e.g., when modal opens for a different user)
     if (user) {
-      setCurrentUserData(JSON.parse(JSON.stringify(user))); // Deep copy
+      setCurrentUserData(structuredClone(user)); // Deep copy
     } else {
       setCurrentUserData(null);
     }

@@ -37,7 +37,7 @@ const mockUserNoCapacity: UserWorkloadData = {
   name: 'No Cap Given',
   role: 'Designer',
   weeklyCapacity: 0,
-  currentAssignments: [{ projectId: 'p3', projectName: 'Logo Design', allocatedHours: 5 }],
+  currentAssignments: [{ projectId: 'p3', projectName: 'Logo Design', allocatedHours: 5, projectDeadline: new Date(2025, 8, 15) }],
 };
 
 const mockUserNoAssignments: UserWorkloadData = {

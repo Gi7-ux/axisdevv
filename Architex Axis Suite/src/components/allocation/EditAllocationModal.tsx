@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserData } from "@/pages/UsersPage"; // Assuming UserData is exported from UsersPage
+import { UserData } from "@/components/user/UserProfileModal";
 import { ProjectSelectItem } from "@/pages/ResourceOverviewPage"; // Assuming ProjectSelectItem is exported
 
 export interface AssignmentData {

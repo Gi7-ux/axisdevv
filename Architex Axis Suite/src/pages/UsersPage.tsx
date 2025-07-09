@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -30,80 +30,120 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserProfileModal, { UserData as ModalUserData } from "@/components/user/UserProfileModal"; // Import modal and its UserData type
 
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  role: "Admin" | "Client" | "Architect" | "Designer" | "Project Manager";
-  status: "Active" | "Inactive";
-  lastActive: string;
-  avatar?: string;
+
+// Keep UserData interface local to UsersPage for now, ensure compatibility with ModalUserData
+// In a larger app, this would be a shared type
+interface UserData extends ModalUserData {
+  currentAssignments?: { projectId: string; projectName: string; allocatedHours: number; projectDeadline?: Date }[];
 }
 
-const users: UserData[] = [
+export const initialUsers: UserData[] = [
   {
-    id: 1,
+    id: 1, // Corresponds to Alex Turner in ProjectDetailPage
     name: "Alex Turner",
     email: "alex.turner@example.com",
-    role: "Admin",
+    role: "Admin", // Also Project Manager on "Harbor View Residences"
     status: "Active",
     lastActive: "Today at 10:23 AM",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop",
+    skills: ["System Administration", "Security Management", "User Support", "Project Management"],
+    weeklyCapacity: 40,
+    availabilitySummary: "75% Capacity", // 120 / (40*4 weeks?) -> needs better calc for summary
+    availabilityNotes: "Available for critical issues. PM for Harbor View.",
+    currentAssignments: [
+      { projectId: "p-1", projectName: "Harbor View Residences", allocatedHours: 120, projectDeadline: new Date(2025, 6, 15) }
+    ]
   },
   {
-    id: 2,
+    id: 2, // Corresponds to Maya Patel
     name: "Maya Patel",
     email: "maya.patel@example.com",
     role: "Architect",
     status: "Active",
     lastActive: "Today at 9:15 AM",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop",
+    skills: ["CAD Software", "Sustainable Design", "Building Codes", "3D Modeling"],
+    weeklyCapacity: 40,
+    availabilitySummary: "Fully Booked",
+    availabilityNotes: "Lead on Harbor View Residences. Also assigned to Riverfront Boutique Hotel.",
+    currentAssignments: [
+      { projectId: "p-1", projectName: "Harbor View Residences", allocatedHours: 200, projectDeadline: new Date(2025, 6, 15) },
+      // Assuming another project for demonstration
+      { projectId: "p-2", projectName: "Riverfront Boutique Hotel", allocatedHours: 160, projectDeadline: new Date(2025, 8, 30) }
+    ]
   },
   {
-    id: 3,
+    id: 3, // Corresponds to Sam Chen
     name: "Sam Chen",
     email: "sam.chen@example.com",
     role: "Designer",
     status: "Active",
     lastActive: "Yesterday at 4:45 PM",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop",
+    skills: ["Graphic Design", "UI/UX", "Adobe Creative Suite"],
+    weeklyCapacity: 35,
+    availabilitySummary: "Available",
+    availabilityNotes: "Working on marketing materials. Assigned to Harbor View.",
+    currentAssignments: [
+      { projectId: "p-1", projectName: "Harbor View Residences", allocatedHours: 150, projectDeadline: new Date(2025, 6, 15) }
+    ]
   },
   {
-    id: 4,
+    id: 4, // Jamie Rodriguez - Not currently in Harbor View project mock data
     name: "Jamie Rodriguez",
     email: "jamie.rodriguez@example.com",
     role: "Project Manager",
     status: "Active",
     lastActive: "Today at 11:30 AM",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=32&h=32&fit=crop",
+    skills: ["Agile Methodology", "Risk Management", "Client Communication", "Budgeting"],
+    weeklyCapacity: 40,
+    availabilitySummary: "High Capacity",
+    availabilityNotes: "Overseeing two major projects (not detailed here yet).",
+    currentAssignments: [
+        // Example:
+        // { projectId: "p-3", projectName: "Metropolitan Office Complex", allocatedHours: 100, projectDeadline: new Date(2025, 9, 10)},
+        // { projectId: "p-4", projectName: "Sunset Valley Community Center", allocatedHours: 80, projectDeadline: new Date(2025, 7, 20)}
+    ]
   },
   {
-    id: 5,
+    id: 5, // Sarah Kim
     name: "Sarah Kim",
     email: "sarah.kim@example.com",
     role: "Architect",
     status: "Inactive",
     lastActive: "3 days ago",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop",
+    skills: ["CAD Software", "Residential Design"],
+    weeklyCapacity: 40, // Capacity even if inactive
+    availabilitySummary: "Inactive",
+    currentAssignments: []
   },
   {
-    id: 6,
+    id: 6, // Robert Johnson - Client
     name: "Robert Johnson",
     email: "robert.johnson@example.com",
     role: "Client",
     status: "Active",
     lastActive: "Today at 8:50 AM",
-    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=32&h=32&fit=crop",
+    // No assignments, capacity, etc. for clients
   },
   {
-    id: 7,
+    id: 7, // Emma Davis
     name: "Emma Davis",
     email: "emma.davis@example.com",
     role: "Designer",
     status: "Active",
     lastActive: "Yesterday at 2:30 PM",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=32&h=32&fit=crop",
+    skills: ["Interior Design", "Space Planning", "Material Selection"],
+    weeklyCapacity: 40,
+    availabilitySummary: "High Capacity",
+    availabilityNotes: "Available for new assignments.",
+    currentAssignments: []
   },
 ];
 
@@ -172,6 +212,26 @@ const getStatusBadgeColor = (status: "Active" | "Inactive") => {
 };
 
 const UsersPage: FC = () => {
+  const [users, setUsers] = useState<UserData[]>(initialUsers);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+
+  const handleOpenModal = (user: UserData) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleSaveUser = (updatedUser: UserData) => {
+    setUsers(users.map(user => user.id === updatedUser.id ? updatedUser : user));
+    handleCloseModal();
+    // Add a toast notification here in a real app
+  };
+
   return (
     <Layout>
       <div className="p-6">
@@ -221,6 +281,8 @@ const UsersPage: FC = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Skills</TableHead>
+                      <TableHead>Availability</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Last Active</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -247,13 +309,25 @@ const UsersPage: FC = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
+                          {user.skills && user.skills.length > 0
+                            ? `${user.skills.length} Skills`
+                            : user.role !== 'Client' ? 'No skills listed' : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {user.availabilitySummary
+                            ? user.availabilitySummary
+                            : user.role !== 'Client' ? '-' : 'N/A'}
+                        </TableCell>
+                        <TableCell>
                           <Badge className={getStatusBadgeColor(user.status)}>
                             {user.status}
                           </Badge>
                         </TableCell>
                         <TableCell>{user.lastActive}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">Edit</Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenModal(user)}>
+                            Edit
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -315,6 +389,12 @@ const UsersPage: FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <UserProfileModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        user={selectedUser}
+        onSave={handleSaveUser}
+      />
     </Layout>
   );
 };

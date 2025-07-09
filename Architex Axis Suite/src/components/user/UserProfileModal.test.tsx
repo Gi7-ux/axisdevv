@@ -113,50 +113,16 @@ describe('UserProfileModal', () => {
       <UserProfileModal
         isOpen={true}
         onClose={mockOnClose}
-        user={{ ...mockUser, skills: ['CAD', 'Sketching', 'Project Management'] }} // Start with 3 skills
+        user={{ ...mockUser, skills: ['CAD', 'Sketching', 'Project Management'] }}
         onSave={mockOnSave}
       />
     );
 
     expect(screen.getByText('CAD')).toBeInTheDocument();
-    // Find the remove button associated with 'CAD'
-    // This assumes the X button is a child of the badge or closely associated
-    const cadBadge = screen.getByText('CAD');
-    const removeCadButton = cadBadge.closest('span')?.querySelector('button[aria-label="Remove skill CAD"]'); // More specific if possible
 
-    // Fallback if the above is too complex or aria-label isn't set. This is less robust.
-    const removeButtons = screen.getAllByRole('button', { name: /remove/i }); // This might be too generic
-
-    // Assuming the first 'X' button corresponds to 'CAD' if ordering is predictable
-    // Or better, find the button more specifically if possible e.g. within the badge element
-    const skillBadges = screen.getAllByRole('button', { name: /remove skill/i }); // Assuming an aria-label like "Remove skill CAD"
-
-    // Let's find the CAD badge and then its remove button
-    let cadRemoveButton: HTMLElement | null = null;
-    const allBadges = screen.getAllByText((content, element) => {
-        return element?.tagName.toLowerCase() === 'span' && content.startsWith('CAD') && element.classList.contains('badge');
-    });
-    if (allBadges.length > 0) {
-        const specificBadge = allBadges[0];
-        const button = specificBadge.querySelector('button'); // This assumes the structure
-        if (button) cadRemoveButton = button;
-    }
-
-    // A simpler way if the button has a unique property or text.
-    // For this example, let's assume we can get all 'X' buttons and click the first one (for 'CAD')
-    // This is brittle and depends on the order of skills.
-    const allRemoveButtons = screen.getAllByRole('button', { name: /x/i }); // If the X button has an accessible name "Close" or "Remove"
-
-    // A more robust way to find the remove button for a specific skill:
-    const skillToRemove = 'CAD';
-    const skillBadgeElement = screen.getByText(skillToRemove).closest('span'); // Assuming skill text is in a span, and badge is a span
-    const removeButton = skillBadgeElement?.querySelector('button'); // Assuming button is direct child
-
-    if (removeButton) {
-        fireEvent.click(removeButton);
-    } else {
-        throw new Error(`Could not find remove button for skill: ${skillToRemove}`);
-    }
+    // Find remove button by aria-label (component should have this)
+    const removeButton = screen.getByRole('button', { name: 'Remove skill CAD' });
+    fireEvent.click(removeButton);
 
     await waitFor(() => {
       expect(screen.queryByText('CAD')).not.toBeInTheDocument();
@@ -164,12 +130,10 @@ describe('UserProfileModal', () => {
     expect(screen.getByText('Sketching')).toBeInTheDocument();
     expect(screen.getByText('Project Management')).toBeInTheDocument();
 
-
     fireEvent.click(screen.getByText('Save Changes'));
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        skills: expect.not.arrayContaining(['CAD']),
-        skills: expect.arrayContaining(['Sketching', 'Project Management']),
+        skills: ['Sketching', 'Project Management'],
       })
     );
   });

@@ -88,7 +88,7 @@ const EditAllocationModal: FC<EditAllocationModalProps> = ({
       user.id,
       {
         projectId: selectedProjectId,
-        projectName: projectDetails?.projectName, // Add projectName for consistency if needed elsewhere
+        projectName: projectDetails?.projectName || `Project ${selectedProjectId}`, // Fallback for missing project names
         allocatedHours: hours,
         // projectDeadline: projectDetails?.projectDeadline, // If available and needed
       },

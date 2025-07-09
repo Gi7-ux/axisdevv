@@ -126,7 +126,17 @@ const UserWorkloadCard: FC<UserWorkloadCardProps> = ({
                         <Badge variant="outline" className="whitespace-nowrap">{assignment.allocatedHours}h</Badge>
                         <Button
                             variant="ghost"
-                            size="icon-xs"
+// File: src/components/ui/button.tsx
+
+// … other configuration …
+
+const sizeVariants = {
+  default: "h-9 px-4 py-2",
+  sm:      "h-8 rounded-md px-3 text-xs",
+  "icon-xs": "h-6 w-6",    // adjust height/width as needed for icon-only buttons
+};
+
+// … rest of your Button component that uses sizeVariants …
                             className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => onEditAssignmentClick(user, assignment)}
                         >

@@ -16,20 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { X, Plus } from "lucide-react";
 
-// Re-defining UserData here for now, ideally this would come from a shared types file
-export interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  role: "Admin" | "Client" | "Architect" | "Designer" | "Project Manager";
-  status: "Active" | "Inactive";
-  lastActive: string;
-  avatar?: string;
-  skills?: string[];
-  weeklyCapacity?: number;
-  availabilityNotes?: string;
-  availabilitySummary?: string;
-}
+import { UserData } from '@/types/user';
 
 interface UserProfileModalProps {
   isOpen: boolean;

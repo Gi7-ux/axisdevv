@@ -214,12 +214,23 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                     type="number"
                     placeholder="e.g., 40"
                     value={currentUserData.weeklyCapacity || ""}
-                    onChange={(e) =>
-                      setCurrentUserData({
-                        ...currentUserData,
-                        weeklyCapacity: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                      })
-                    }
+<Input
+  id="weeklyCapacity"
+  type="number"
+  placeholder="e.g., 40"
+  min="0"
+  max="168"
+  value={currentUserData.weeklyCapacity || ""}
+  onChange={(e) =>
+    setCurrentUserData({
+      ...currentUserData,
+      weeklyCapacity: e.target.value
+        ? Math.max(0, Math.min(168, parseInt(e.target.value, 10) || 0))
+        : undefined,
+    })
+  }
+  className="mt-1"
+/>
                     className="mt-1"
                   />
                 </div>

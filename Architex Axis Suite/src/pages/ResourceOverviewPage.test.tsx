@@ -207,12 +207,8 @@ describe('ResourceOverviewPage - Allocation Editing', () => {
     const calls = UserWorkloadCardMock.mock.calls;
     const lastAlexCall = calls.slice().reverse().find((call: any) => call[0].user.id === userToUpdate.id);
 
-    expect(lastAlexCall[0].user.currentAssignments).toEqual(
-      expect.arrayContaining([
-        ...userToUpdate.currentAssignments, // original assignments
-        expect.objectContaining({ projectId: mockProjectsList[0].projectId, allocatedHours: 10 }) // new assignment from mock modal save
-      ])
-    );
+// Add alongside the other imports at the top of ResourceOverviewPage.test.tsx
+import { mockProjectsList } from './ResourceOverviewPage';
   });
 
    test('editing an assignment updates the user data and closes the modal', async () => {

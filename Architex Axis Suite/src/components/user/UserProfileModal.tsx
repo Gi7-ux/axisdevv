@@ -170,7 +170,12 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                     placeholder="Add a skill"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSkillAdd()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSkillAdd();
+                      }
+                    }}
                   />
                   <Button type="button" onClick={handleSkillAdd} variant="outline" size="icon">
                     <Plus className="h-4 w-4" />

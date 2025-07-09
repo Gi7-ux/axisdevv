@@ -186,6 +186,7 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                           size="xs"
                           className="h-auto w-auto p-0.5 hover:bg-destructive/20"
                           onClick={() => handleSkillRemove(skill)}
+                          aria-label={`Remove skill ${skill}`}
                         >
                           <X className="h-3 w-3" />
                         </Button>

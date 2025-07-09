@@ -3,7 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   ClipboardList, 
-  Users, 
+  Users,
+  Briefcase, // Using Briefcase for Resources for now
   MessageSquare, 
   FolderOpen, 
   BarChart3, 
@@ -24,6 +25,7 @@ const Sidebar: FC<SidebarProps> = ({ collapsed = false }) => {
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
     { icon: ClipboardList, label: "Projects", path: "/projects" },
     { icon: Users, label: "Users", path: "/users" },
+    { icon: Briefcase, label: "Resources", path: "/resources" }, // Added Resources link
     { icon: MessageSquare, label: "Messages", path: "/messages" },
     { icon: FolderOpen, label: "Files", path: "/files" },
     { icon: BarChart3, label: "Reports", path: "/reports" }

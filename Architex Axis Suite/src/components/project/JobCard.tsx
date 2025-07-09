@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { CalendarDays, MoreHorizontal } from "lucide-react";
+import { CalendarDays, MoreHorizontal, GitMerge } from "lucide-react"; // Added GitMerge for dependency icon
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -27,6 +27,7 @@ export interface Task {
   title: string;
   completed: boolean;
   assignedTo?: string;
+  dependsOn?: string[]; // Added for consistency, JobCard will now receive tasks with this field
 }
 
 export interface TeamMember {
@@ -143,24 +144,38 @@ const JobCard: FC<JobCardProps> = ({
           <div className="mt-4">
             <h4 className="font-medium text-sm mb-2">Tasks:</h4>
             <div className="space-y-2">
-              {tasks.map((task) => (
-                <div 
-                  key={task.id} 
-                  className="flex items-center gap-2"
-                >
-                  <Checkbox 
-                    id={task.id}
-                    checked={task.completed}
-                    onCheckedChange={() => onTaskToggle && onTaskToggle(id, task.id)}
-                  />
-                  <label 
-                    htmlFor={task.id}
-                    className={`text-sm ${task.completed ? "line-through text-muted-foreground" : ""}`}
-                  >
-                    {task.title}
-                  </label>
-                </div>
-              ))}
+              {tasks.map((task) => {
+                const dependentTaskTitles = task.dependsOn
+                  ?.map(depId => {
+                    const dependentTask = tasks.find(t => t.id === depId);
+                    return dependentTask ? dependentTask.title : `Task ID: ${depId}`; // Fallback to ID if title not found in current job card
+                  })
+                  .join(", ");
+
+                return (
+                  <div key={task.id} className="py-1">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id={`${id}-${task.id}`} // Ensure unique checkbox ID across cards
+                        checked={task.completed}
+                        onCheckedChange={() => onTaskToggle && onTaskToggle(id, task.id)}
+                      />
+                      <label
+                        htmlFor={`${id}-${task.id}`}
+                        className={`text-sm ${task.completed ? "line-through text-muted-foreground" : ""}`}
+                      >
+                        {task.title}
+                      </label>
+                    </div>
+                    {dependentTaskTitles && (
+                      <div className="pl-6 mt-0.5 flex items-center text-xs text-muted-foreground">
+                        <GitMerge className="h-3 w-3 mr-1 flex-shrink-0" />
+                        <span>Depends on: {dependentTaskTitles}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             
             <div className="mt-4 flex">

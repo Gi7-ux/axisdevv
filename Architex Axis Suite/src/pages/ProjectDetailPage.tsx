@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import JobCard, { Task, TeamMember } from "@/components/project/JobCard";
+// import JobCard, { Task, TeamMember } from "@/components/project/JobCard"; // Task will be defined here now
+import JobCard, { TeamMember } from "@/components/project/JobCard"; // TeamMember still from JobCard for now
 import { useToast } from "@/hooks/use-toast";
 import {
   FileText,
@@ -47,8 +48,24 @@ interface ProjectData {
   status: "Active" | "On Hold" | "Completed" | "At Risk";
   progress: number;
   budget: number;
-  team: TeamMember[];
+  // team: TeamMember[]; // Old structure
+  teamAssignments?: { userId: string; allocatedHours: number; role?: string }[]; // New structure
 }
+
+// Define Task interface here, including dependencies
+export interface Task {
+  id: string; // Should be unique across the entire project for reliable dependency tracking
+  title: string;
+  completed: boolean;
+  assignedTo?: string; // Optional: ID of the user this task is assigned to
+  dependsOn?: string[]; // Array of task IDs that this task depends on
+}
+
+// This TeamMember type is used by JobCard and TeamMemberDialog.
+// It's more of a display representation of a user.
+// The source of truth for user details should be UserData from UsersPage.
+export type { TeamMember };
+
 
 const project: ProjectData = {
   id: "p-1",
@@ -60,7 +77,17 @@ const project: ProjectData = {
   status: "Active",
   progress: 65,
   budget: 2500000,
-  team: [
+  teamAssignments: [ // Updated to new structure
+    { userId: "1", allocatedHours: 120, role: "Project Manager" }, // Alex Turner (User ID 1)
+    { userId: "2", allocatedHours: 200, role: "Architect" },       // Maya Patel (User ID 2)
+    { userId: "3", allocatedHours: 150, role: "Designer" },        // Sam Chen (User ID 3)
+  ]
+};
+
+// Sample user data that might be fetched or available globally
+// For now, this helps map userId to user details for display in ProjectDetailPage
+// This is a temporary solution. Ideally, UserData from UsersPage would be accessible.
+const projectTeamMembersForDisplay: TeamMember[] = [
     {
       id: "1",
       name: "Alex Turner",
@@ -79,12 +106,11 @@ const project: ProjectData = {
       role: "Designer",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop"
     }
-  ]
-};
+];
 
-// Available team members for assignment
+// Available team members for assignment (remains the same for dialogs)
 const availableTeamMembers: TeamMember[] = [
-  ...project.team,
+  ...projectTeamMembersForDisplay,
   {
     id: "4",
     name: "Elena Rodriguez",
@@ -118,12 +144,12 @@ const initialJobCards = [
     title: "Site Analysis and Planning",
     description: "Evaluate the site and create initial planning documents",
     dueDate: new Date(2025, 1, 15), // February 15, 2025
-    assignedTo: [project.team[0], project.team[1]],
-    tasks: [
-      { id: "task-1-1", title: "Conduct site visit", completed: true },
-      { id: "task-1-2", title: "Analyze soil conditions", completed: true },
-      { id: "task-1-3", title: "Review local building codes", completed: false },
-      { id: "task-1-4", title: "Create preliminary site plan", completed: false }
+    assignedTo: [projectTeamMembersForDisplay[0], projectTeamMembersForDisplay[1]],
+    tasks: [ // Assuming globally unique task IDs like "p1-j1-t1" (projectId-jobId-taskId) for later
+      { id: "p1-j1-t1", title: "Conduct site visit", completed: true },
+      { id: "p1-j1-t2", title: "Analyze soil conditions", completed: true, dependsOn: ["p1-j1-t1"] },
+      { id: "p1-j1-t3", title: "Review local building codes", completed: false, dependsOn: ["p1-j1-t1"] },
+      { id: "p1-j1-t4", title: "Create preliminary site plan", completed: false, dependsOn: ["p1-j1-t2", "p1-j1-t3"] }
     ]
   },
   {
@@ -131,12 +157,14 @@ const initialJobCards = [
     title: "Concept Design",
     description: "Develop architectural concepts based on client requirements",
     dueDate: new Date(2025, 2, 20), // March 20, 2025
-    assignedTo: [project.team[1], project.team[2]],
+    assignedTo: [projectTeamMembersForDisplay[1], projectTeamMembersForDisplay[2]],
     tasks: [
-      { id: "task-2-1", title: "Research similar architectural styles", completed: true },
-      { id: "task-2-2", title: "Create initial sketches", completed: true },
-      { id: "task-2-3", title: "Develop 3D concept models", completed: false },
-      { id: "task-2-4", title: "Present concepts to client", completed: false }
+      { id: "p1-j2-t1", title: "Research similar architectural styles", completed: true },
+      { id: "p1-j2-t2", title: "Create initial sketches", completed: true, dependsOn: ["p1-j2-t1"] },
+      { id: "p1-j2-t3", title: "Develop 3D concept models", completed: false, dependsOn: ["p1-j2-t2"] },
+      // Example of a cross-job-card dependency (Conceptual for now, UI will handle later)
+      // { id: "p1-j2-t4", title: "Present concepts to client", completed: false, dependsOn: ["p1-j1-t4", "p1-j2-t3"] }
+      { id: "p1-j2-t4", title: "Present concepts to client", completed: false, dependsOn: ["p1-j2-t3"] }
     ]
   },
   {
@@ -144,12 +172,12 @@ const initialJobCards = [
     title: "Detailed Design",
     description: "Create detailed architectural and engineering drawings",
     dueDate: new Date(2025, 4, 10), // May 10, 2025
-    assignedTo: [project.team[1]],
+    assignedTo: [projectTeamMembersForDisplay[1]],
     tasks: [
-      { id: "task-3-1", title: "Create floor plans", completed: false },
-      { id: "task-3-2", title: "Develop elevation drawings", completed: false },
-      { id: "task-3-3", title: "Design structural components", completed: false },
-      { id: "task-3-4", title: "Coordinate with engineering team", completed: false }
+      { id: "p1-j3-t1", title: "Create floor plans", completed: false, dependsOn: ["p1-j2-t4"] }, // Depends on task from Job Card 2
+      { id: "p1-j3-t2", title: "Develop elevation drawings", completed: false, dependsOn: ["p1-j3-t1"] },
+      { id: "p1-j3-t3", title: "Design structural components", completed: false, dependsOn: ["p1-j3-t1"] },
+      { id: "p1-j3-t4", title: "Coordinate with engineering team", completed: false, dependsOn: ["p1-j3-t3"] }
     ]
   }
 ];
@@ -170,7 +198,7 @@ const messages = [
   },
   {
     id: "msg-2",
-    sender: project.team[1],
+    sender: projectTeamMembersForDisplay[1], // Use mapped display members
     content: "Thank you for the feedback. We'll prepare alternative facade options for our next presentation. Are there specific materials you're interested in exploring?",
     timestamp: new Date(2025, 1, 10, 15, 45),
     attachments: []
@@ -193,7 +221,7 @@ const messages = [
 const initialTimeEntries: TimeEntry[] = [
   {
     id: "time-1",
-    user: project.team[1],
+    user: projectTeamMembersForDisplay[1],  // Use mapped display members
     date: new Date(2025, 1, 8),
     hours: 6.5,
     description: "Site analysis and initial concept sketching",
@@ -209,7 +237,7 @@ const initialTimeEntries: TimeEntry[] = [
   },
   {
     id: "time-2",
-    user: project.team[2],
+    user: projectTeamMembersForDisplay[2], // Use mapped display members
     date: new Date(2025, 1, 9),
     hours: 8,
     description: "Research on sustainable materials and 3D modeling",
@@ -232,7 +260,7 @@ const initialTimeEntries: TimeEntry[] = [
   },
   {
     id: "time-3",
-    user: project.team[0],
+    user: projectTeamMembersForDisplay[0], // Use mapped display members
     date: new Date(2025, 1, 10),
     hours: 4,
     description: "Client meeting preparation and project planning",
@@ -258,7 +286,9 @@ const getStatusColor = (status: ProjectData["status"]) => {
 const ProjectDetailPage: FC = () => {
   const { toast } = useToast();
   const [jobCards, setJobCards] = useState(initialJobCards);
-  const [projectTeam, setProjectTeam] = useState(project.team);
+  // The projectTeam state now stores the TeamMember[] for display purposes.
+  // Actual assignments are in project.teamAssignments
+  const [projectTeamForDisplay, setProjectTeamForDisplay] = useState(projectTeamMembersForDisplay);
   const [timeEntries, setTimeEntries] = useState(initialTimeEntries);
   
   // Dialogs state
@@ -348,19 +378,29 @@ const ProjectDetailPage: FC = () => {
   
   // Team member handlers
   const handleAssignTeamMembers = (newMembers: TeamMember[]) => {
-    const updatedTeam = [...projectTeam];
+    // This function primarily updates the display list of team members.
+    // Actual allocation changes would need to modify `project.teamAssignments`
+    // and potentially a global state or backend.
+    const updatedTeamForDisplay = [...projectTeamForDisplay];
     
     newMembers.forEach(member => {
-      if (!updatedTeam.some(m => m.id === member.id)) {
-        updatedTeam.push(member);
+      if (!updatedTeamForDisplay.some(m => m.id === member.id)) {
+        updatedTeamForDisplay.push(member);
       }
     });
     
-    setProjectTeam(updatedTeam);
+    setProjectTeamForDisplay(updatedTeamForDisplay);
     
+    // TODO: Update project.teamAssignments here or via a more robust state management.
+    // For now, this only updates the visual list in the Team tab.
+    // Example of what might be needed:
+    // const newAssignments = newMembers.map(m => ({ userId: m.id, allocatedHours: 0, role: m.role }));
+    // project.teamAssignments = [...(project.teamAssignments || []), ...newAssignments.filter(na => !project.teamAssignments?.some(pa => pa.userId === na.userId))];
+
+
     toast({
-      title: "Team members assigned",
-      description: `${newMembers.length} new team member${newMembers.length !== 1 ? 's' : ''} added to the project.`
+      title: "Team members visually added",
+      description: `${newMembers.length} new team member${newMembers.length !== 1 ? 's' : ''} added to the project display. Allocation data needs separate handling.`
     });
   };
   
@@ -558,7 +598,7 @@ const ProjectDetailPage: FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {projectTeam.map(member => (
+                  {projectTeamForDisplay.map(member => (
                     <div key={member.id} className="flex items-start gap-4">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={member.avatar} />
@@ -566,7 +606,15 @@ const ProjectDetailPage: FC = () => {
                       </Avatar>
                       <div>
                         <h3 className="font-medium">{member.name}</h3>
-                        <p className="text-sm text-muted-foreground">{member.role}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.role}
+                          {/* Optionally, display allocated hours from project.teamAssignments if available */}
+                          {project.teamAssignments?.find(a => a.userId === member.id) && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              ({project.teamAssignments.find(a => a.userId === member.id)?.allocatedHours || 0} hrs allocated)
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -704,7 +752,7 @@ const ProjectDetailPage: FC = () => {
         isOpen={isTeamDialogOpen}
         onClose={() => setIsTeamDialogOpen(false)}
         availableMembers={availableTeamMembers}
-        currentTeam={projectTeam}
+        currentTeam={projectTeamForDisplay} // Pass the display team
         onAssign={handleAssignTeamMembers}
       />
       
@@ -712,7 +760,7 @@ const ProjectDetailPage: FC = () => {
         isOpen={isTimeEntryDialogOpen}
         onClose={() => setIsTimeEntryDialogOpen(false)}
         timeEntry={currentTimeEntry}
-        teamMembers={projectTeam}
+        teamMembers={projectTeamForDisplay} // Pass the display team
         onSave={handleAddTimeEntry}
         isAdmin={true}
       />

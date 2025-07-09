@@ -118,22 +118,23 @@ jest.mock('@/components/user/UserWorkloadCard', () => ({
     __esModule: true,
     // Make sure UserAssignment is also available if UserWorkloadCard exports it or uses it internally in a way that affects tests
     // default: jest.fn(({ user, onEditAssignmentClick, onAddAssignmentClick }) => ( // Original mock
-    default: jest.fn((props) => { // Modified mock to use the passed jest.fn
-        const { user } = props;
-        // Store the passed functions to be able to call them
-        mockOnEditAssignmentClick.mockImplementation(props.onEditAssignmentClick);
-        mockOnAddAssignmentClick.mockImplementation(props.onAddAssignmentClick);
-
+    default: jest.fn(({ user, onEditAssignmentClick, onAddAssignmentClick }) => {
         return (
             <div data-testid={`user-workload-card-${user.id}`}>
                 <span>{user.name}</span>
-                {/* Simulate internal buttons that would trigger these callbacks */}
                 {user.currentAssignments?.map((assign: any) => (
-                    <button key={assign.projectId} data-testid={`edit-assign-${user.id}-${assign.projectId}`} onClick={() => mockOnEditAssignmentClick(user, assign)}>
+                    <button
+                        key={assign.projectId}
+                        data-testid={`edit-assign-${user.id}-${assign.projectId}`}
+                        onClick={() => onEditAssignmentClick(user, assign)}
+                    >
                         Edit {assign.projectName}
                     </button>
                 ))}
-                <button data-testid={`add-assign-${user.id}`} onClick={() => mockOnAddAssignmentClick(user)}>
+                <button
+                    data-testid={`add-assign-${user.id}`}
+                    onClick={() => onAddAssignmentClick(user)}
+                >
                     Add Assignment for {user.name}
                 </button>
             </div>

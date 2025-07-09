@@ -37,21 +37,24 @@ const UserWorkloadCard: FC<UserWorkloadCardProps> = ({
   onEditAssignmentClick,
   onAddAssignmentClick
 }) => {
-  const totalAllocatedHours = user.currentAssignments?.reduce(
-    (sum, assignment) => sum + assignment.allocatedHours,
-    0
-  ) || 0;
+interface UserAssignment {
+  projectId: string;
+  projectName: string;
+  /** Weekly hours allocated to this project */
+  allocatedHours: number;
+  projectDeadline?: Date;
+}
 
-  const weeklyCapacity = user.weeklyCapacity || 0;
-  const workloadPercentage = weeklyCapacity > 0 ? (totalAllocatedHours / weeklyCapacity) * 100 : 0;
-  // Note: This percentage calculation might need refinement.
-  // E.g., if allocatedHours are total for project, and weeklyCapacity is per week.
-  // For now, it's a direct comparison. A more accurate model would consider project timelines.
-  // Let's assume allocatedHours here are "current weekly allocated hours" for simplicity in this first pass.
-  // Or, if allocatedHours is total for a project, then workloadPercentage makes less sense without project duration.
-  // For this card, let's interpret `allocatedHours` in `currentAssignments` as "active weekly hours on this project".
-  // And `weeklyCapacity` is the user's total capacity per week.
-
+export interface UserWorkloadData {
+  id: number;
+  name: string;
+  avatar?: string;
+  role: "Admin" | "Client" | "Architect" | "Designer" | "Project Manager";
+  /** User's total weekly capacity in hours */
+  weeklyCapacity?: number;
+  currentAssignments?: UserAssignment[];
+  skills?: string[];
+}
   const getRoleBadgeColor = (role: UserWorkloadData["role"]) => {
     // This function should ideally be imported from a shared utils file
     switch (role) {

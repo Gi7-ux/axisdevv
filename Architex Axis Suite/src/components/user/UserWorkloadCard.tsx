@@ -1,13 +1,15 @@
 import { FC } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils"; // Import cn utility
+import { Button } from "@/components/ui/button";
+import { Edit3, PlusCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Assuming UserData will be imported from a shared types file or UsersPage
 // For now, defining a simplified version for this component's needs
-interface UserAssignment {
+export interface UserAssignment { // Exporting for use in ResourceOverviewPage
   projectId: string;
   projectName: string;
   allocatedHours: number;
@@ -26,9 +28,15 @@ export interface UserWorkloadData {
 
 interface UserWorkloadCardProps {
   user: UserWorkloadData;
+  onEditAssignmentClick: (user: UserWorkloadData, assignment: UserAssignment) => void;
+  onAddAssignmentClick: (user: UserWorkloadData) => void;
 }
 
-const UserWorkloadCard: FC<UserWorkloadCardProps> = ({ user }) => {
+const UserWorkloadCard: FC<UserWorkloadCardProps> = ({
+  user,
+  onEditAssignmentClick,
+  onAddAssignmentClick
+}) => {
   const totalAllocatedHours = user.currentAssignments?.reduce(
     (sum, assignment) => sum + assignment.allocatedHours,
     0
@@ -98,30 +106,54 @@ const UserWorkloadCard: FC<UserWorkloadCardProps> = ({ user }) => {
         </div>
 
         <div className="space-y-2 pt-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Current Assignments:</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-1.5">Current Assignments:</h4>
           {user.currentAssignments && user.currentAssignments.length > 0 ? (
-            <div className="max-h-32 overflow-y-auto space-y-1 pr-2">
+            <div className="max-h-32 overflow-y-auto space-y-1 pr-1"> {/* Reduced pr for scrollbar visibility */}
               {user.currentAssignments.map((assignment) => (
-                <div key={assignment.projectId} className="text-xs p-2 bg-muted/50 rounded-md">
+                <div key={assignment.projectId} className="text-xs p-2 bg-muted/50 rounded-md hover:bg-muted/70 transition-colors group">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium truncate" title={assignment.projectName}>
-                      {assignment.projectName}
-                    </span>
-                    <Badge variant="outline">{assignment.allocatedHours}h</Badge>
+                    <div className="truncate">
+                      <span className="font-medium block truncate" title={assignment.projectName}>
+                        {assignment.projectName}
+                      </span>
+                      {assignment.projectDeadline && (
+                        <p className="text-muted-foreground text-xs">
+                          Deadline: {new Date(assignment.projectDeadline).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="whitespace-nowrap">{assignment.allocatedHours}h</Badge>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => onEditAssignmentClick(user, assignment)}
+                        >
+                            <Edit3 className="h-3.5 w-3.5" />
+                            <span className="sr-only">Edit Assignment</span>
+                        </Button>
+                    </div>
                   </div>
-                  {assignment.projectDeadline && (
-                     <p className="text-muted-foreground text-xs">
-                       Deadline: {new Date(assignment.projectDeadline).toLocaleDateString()}
-                     </p>
-                  )}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No current assignments.</p>
+            <p className="text-xs text-muted-foreground py-2">No current assignments.</p>
           )}
         </div>
       </CardContent>
+      <CardFooter className="pt-3">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full flex items-center gap-1.5 text-xs"
+          onClick={() => onAddAssignmentClick(user)}
+        >
+          <PlusCircle className="h-3.5 w-3.5" />
+          Assign to Project
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

@@ -29,7 +29,8 @@ const ResourceOverviewPage: FC = () => {
   // In a real app, users data would be fetched or come from a global state
   // For now, using a state variable that's a mutable copy of initialUsers
   const { toast } = useToast();
-  const [usersData, setUsersData] = useState<PageUserData[]>(() => JSON.parse(JSON.stringify(initialUsers)));
+  // Replace JSON-based deep clone with built-in structuredClone for efficiency and fidelity
+  const [usersData, setUsersData] = useState<UserData[]>(() => structuredClone(initialUsers));
   const [teamMembersForDisplay, setTeamMembersForDisplay] = useState<PageUserData[]>([]);
 
   const [isEditAllocationModalOpen, setIsEditAllocationModalOpen] = useState(false);

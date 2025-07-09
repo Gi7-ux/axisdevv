@@ -276,7 +276,11 @@ const ProjectDetailPage: FC = () => {
   const [jobCards, setJobCards] = useState(initialJobCards);
   // The projectTeam state now stores the TeamMember[] for display purposes.
   // Actual assignments are in project.teamAssignments
-  const [projectTeamForDisplay, setProjectTeamForDisplay] = useState(projectTeamMembersForDisplay);
+  const projectTeamForDisplay = useMemo(() => 
+    project.teamAssignments?.map(assignment => 
+      getUserById(assignment.userId) // Fetch from user store
+    ).filter(Boolean) || []
+  , [project.teamAssignments]);
   const [timeEntries, setTimeEntries] = useState(initialTimeEntries);
   
   // Dialogs state

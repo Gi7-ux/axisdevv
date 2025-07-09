@@ -57,41 +57,76 @@ const ResourceOverviewPage: FC = () => {
     setEditingAssignment(null);
   };
 
-  const handleSaveAssignment = (userId: number, assignmentData: ModalAssignmentData, isNew: boolean) => {
-    setUsersData(prevUsers =>
-      prevUsers.map(user => {
-        if (user.id === userId) {
-          const updatedAssignments = [...(user.currentAssignments || [])];
-          const projectInfo = mockProjectsList.find(p => p.projectId === assignmentData.projectId);
+  const handleSaveAssignment = (
+    userId: number,
+    assignmentData: ModalAssignmentData,
+    isNew: boolean
+  ) => {
+    try {
+      if (!userId || !assignmentData.projectId) {
+        throw new Error('Invalid assignment data');
+      }
 
-          if (isNew) {
-            // Ensure not adding a duplicate projectId silently, though modal filters this
-            if (!updatedAssignments.some(a => a.projectId === assignmentData.projectId)) {
-              updatedAssignments.push({
-                ...assignmentData,
-                projectName: projectInfo?.projectName || "Unknown Project", // Get projectName from mockProjectsList
-                // projectDeadline: projectInfo?.projectDeadline, // If project list had deadlines
-              });
+      setUsersData(prevUsers =>
+        prevUsers.map(user => {
+          if (user.id === userId) {
+            const updatedAssignments = [...(user.currentAssignments || [])];
+            const projectInfo = mockProjectsList.find(
+              p => p.projectId === assignmentData.projectId
+            );
+
+            if (isNew) {
+              // Ensure not adding a duplicate projectId silently, though modal filters this
+              if (
+                !updatedAssignments.some(
+                  a => a.projectId === assignmentData.projectId
+                )
+              ) {
+                updatedAssignments.push({
+                  ...assignmentData,
+                  projectName:
+                    projectInfo?.projectName || 'Unknown Project',
+                  // projectDeadline: projectInfo?.projectDeadline,
+                });
+              }
+            } else {
+              // Editing existing
+              const assignmentIndex = updatedAssignments.findIndex(
+                a => a.projectId === assignmentData.projectId
+              );
+              if (assignmentIndex !== -1) {
+                updatedAssignments[assignmentIndex] = {
+                  ...updatedAssignments[assignmentIndex],
+                  ...assignmentData,
+                  projectName:
+                    projectInfo?.projectName ||
+                    updatedAssignments[assignmentIndex].projectName,
+                };
+              }
             }
-          } else { // Editing existing
-            const assignmentIndex = updatedAssignments.findIndex(a => a.projectId === assignmentData.projectId);
-            if (assignmentIndex !== -1) {
-              updatedAssignments[assignmentIndex] = {
-                ...updatedAssignments[assignmentIndex], // Keep existing details like deadline
-                ...assignmentData, // Overwrite with new hours, potentially new projectName if it changed (though it shouldn't for edit)
-                projectName: projectInfo?.projectName || updatedAssignments[assignmentIndex].projectName,
-              };
-            }
+
+            return { ...user, currentAssignments: updatedAssignments };
           }
-          return { ...user, currentAssignments: updatedAssignments };
-        }
-        return user;
-      })
-    );
-    toast({
+          return user;
+        })
+      );
+
+      toast({
         title: `Assignment ${isNew ? 'added' : 'updated'}`,
-        description: `${editingUser?.name} is now allocated ${assignmentData.allocatedHours}h to ${assignmentData.projectName || projectInfo?.projectName}.`,
-    });
+        description: `${editingUser?.name} is now allocated ${assignmentData.allocatedHours}h to ${
+          assignmentData.projectName || projectInfo?.projectName
+        }.`,
+      });
+    } catch (error) {
+      console.error('Error saving assignment:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save assignment. Please try again.',
+        variant: 'destructive',
+      });
+      return; // Don't close modal on error
+    }
+
     handleCloseEditAllocationModal();
   };
 

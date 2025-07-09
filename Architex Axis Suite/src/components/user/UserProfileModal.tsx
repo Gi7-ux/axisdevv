@@ -208,10 +208,9 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                     onChange={(e) =>
                       setCurrentUserData({
                         ...currentUserData,
--                       weeklyCapacity: e.target.value ? parseInt(e.target.value, 10) : undefined,
-+                       weeklyCapacity: e.target.value
-+                         ? Math.max(0, Math.min(168, parseInt(e.target.value, 10)))
-+                         : undefined,
+                        weeklyCapacity: e.target.value
+                          ? Math.max(0, Math.min(168, parseInt(e.target.value, 10)))
+                          : undefined,
                       })
                     }
                     className="mt-1"

@@ -187,7 +187,7 @@ describe('ResourceOverviewPage - Allocation Editing', () => {
   });
 
   test('saving a new assignment updates the user data and closes the modal', async () => {
-    const { UsersPage, initialUsers: usersBeforeSave } = require('./UsersPage');
+    const { initialUsers: usersBeforeSave } = require('./UsersPage');
     const userToUpdate = usersBeforeSave.find((u:any) => u.id === 1); // Alex Turner
 
     render(<ResourceOverviewPage />);

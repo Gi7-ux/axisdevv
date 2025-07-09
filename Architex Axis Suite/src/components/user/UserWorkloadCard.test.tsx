@@ -19,8 +19,9 @@ const mockUserOverAllocated: UserWorkloadData = {
   id: 2,
   name: 'Max Overload',
   currentAssignments: [
-    { projectId: 'p1', projectName: 'Skyscraper Heights', allocatedHours: 30 },
-    { projectId: 'p2', projectName: 'Parkside Pavilion', allocatedHours: 20 }, // Total 50h > 40h capacity
+  currentAssignments: [
+    { projectId: 'p1', projectName: 'Skyscraper Heights', allocatedHours: 30, projectDeadline: new Date(2025, 11, 31) },
+    { projectId: 'p2', projectName: 'Parkside Pavilion', allocatedHours: 20, projectDeadline: new Date(2026, 5, 30) }, // Total 50h > 40h capacity
   ],
 };
 

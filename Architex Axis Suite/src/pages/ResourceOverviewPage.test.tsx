@@ -149,9 +149,7 @@ describe('ResourceOverviewPage - Allocation Editing', () => {
 
     // Re-mock initialUsers for each test to ensure a fresh state
     // This is a bit heavy-handed; better state management or DI for tests would be ideal.
-    jest.doMock('./UsersPage', () => ({
-        initialUsers: JSON.parse(JSON.stringify(mockUsersPayload)) // Use a deep copy
-    }));
+    // Mock is already established globally - individual test variations should be handled differently
   });
 
   test('opens EditAllocationModal in "add new" mode when "Add Assignment" is clicked on a UserWorkloadCard', async () => {

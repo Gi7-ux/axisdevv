@@ -222,6 +222,7 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                     id="availabilityNotes"
                     placeholder="e.g., On vacation next week, Dedicated to Project X..."
                     value={currentUserData.availabilityNotes || ""}
+                    maxLength={500}
                     onChange={(e) =>
                       setCurrentUserData({
                         ...currentUserData,
@@ -230,6 +231,9 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
                     }
                     className="mt-1 min-h-[80px]"
                   />
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {(currentUserData.availabilityNotes || "").length}/500 characters
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="availabilitySummary">Availability Summary (Display Only)</Label>

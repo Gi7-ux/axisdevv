@@ -48,10 +48,11 @@ const UserProfileModal: FC<UserProfileModalProps> = ({
   }
 
   const handleSkillAdd = () => {
-    if (newSkill.trim() && !currentUserData.skills?.includes(newSkill.trim())) {
+    const sanitizedSkill = newSkill.trim().replace(/[<>]/g, '');
+    if (sanitizedSkill && !currentUserData.skills?.includes(sanitizedSkill)) {
       setCurrentUserData({
         ...currentUserData,
-        skills: [...(currentUserData.skills || []), newSkill.trim()],
+        skills: [...(currentUserData.skills || []), sanitizedSkill],
       });
       setNewSkill("");
     }

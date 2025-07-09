@@ -3,6 +3,7 @@ import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ProjectsPage from "@/pages/ProjectsPage";
 import UsersPage from "@/pages/UsersPage";
+import ResourceOverviewPage from "@/pages/ResourceOverviewPage"; // Import the new page
 import MessagesPage from "@/pages/MessagesPage";
 import FilesPage from "@/pages/FilesPage";
 import ReportsPage from "@/pages/ReportsPage";
@@ -22,6 +23,7 @@ function App() {
           <Route path="/projects/new" element={<NewProjectPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/resources" element={<ResourceOverviewPage />} /> {/* Add route for new page */}
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/files" element={<FilesPage />} />
           <Route path="/reports" element={<ReportsPage />} />

@@ -109,7 +109,9 @@ describe('EditAllocationModal', () => {
       expect(screen.getByLabelText('Project')).toBeInTheDocument();
       // For a disabled Select, the value might be within a specific element.
       // Checking if the input field for project name (now readOnly) has the value
-      expect(screen.getByDisplayValue(mockAssignmentToEdit.projectName!)).toBeDisabled();
+-     expect(screen.getByDisplayValue(mockAssignmentToEdit.projectName!)).toBeDisabled();
++     const projectInput = screen.getByDisplayValue(mockAssignmentToEdit.projectName!);
++     expect(projectInput).toHaveAttribute('readOnly');
       expect(screen.getByLabelText('Allocated Hours')).toHaveValue(mockAssignmentToEdit.allocatedHours);
       expect(screen.getByRole('button', { name: 'Save Changes' })).toBeInTheDocument();
     });

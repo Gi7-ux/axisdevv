@@ -48,7 +48,7 @@ interface ProjectData {
   progress: number;
   budget: number;
   // team: TeamMember[]; // Old structure
-  teamAssignments?: { userId: string; allocatedHours: number; role?: string }[]; // New structure
+  teamAssignments: { userId: string; allocatedHours: number; role?: string }[]; // New structure
 }
 
 // This TeamMember type is used by JobCard and TeamMemberDialog.

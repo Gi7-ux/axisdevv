@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -30,18 +30,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserProfileModal, { UserData as ModalUserData } from "@/components/user/UserProfileModal"; // Import modal and its UserData type
 
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  role: "Admin" | "Client" | "Architect" | "Designer" | "Project Manager";
-  status: "Active" | "Inactive";
-  lastActive: string;
-  avatar?: string;
-}
 
-const users: UserData[] = [
+// Keep UserData interface local to UsersPage for now, ensure compatibility with ModalUserData
+// In a larger app, this would be a shared type
+interface UserData extends ModalUserData {}
+
+const initialUsers: UserData[] = [
   {
     id: 1,
     name: "Alex Turner",
@@ -49,7 +45,11 @@ const users: UserData[] = [
     role: "Admin",
     status: "Active",
     lastActive: "Today at 10:23 AM",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop",
+    skills: ["System Administration", "Security Management", "User Support"],
+    weeklyCapacity: 40,
+    availabilitySummary: "90% Capacity",
+    availabilityNotes: "Available for critical issues."
   },
   {
     id: 2,
@@ -58,7 +58,11 @@ const users: UserData[] = [
     role: "Architect",
     status: "Active",
     lastActive: "Today at 9:15 AM",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop",
+    skills: ["CAD Software", "Sustainable Design", "Building Codes", "3D Modeling"],
+    weeklyCapacity: 40,
+    availabilitySummary: "Fully Booked",
+    availabilityNotes: "Lead on Harbor View Residences."
   },
   {
     id: 3,
@@ -67,7 +71,11 @@ const users: UserData[] = [
     role: "Designer",
     status: "Active",
     lastActive: "Yesterday at 4:45 PM",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop",
+    skills: ["Graphic Design", "UI/UX", "Adobe Creative Suite"],
+    weeklyCapacity: 35,
+    availabilitySummary: "Available",
+    availabilityNotes: "Working on marketing materials."
   },
   {
     id: 4,
@@ -76,7 +84,11 @@ const users: UserData[] = [
     role: "Project Manager",
     status: "Active",
     lastActive: "Today at 11:30 AM",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=32&h=32&fit=crop",
+    skills: ["Agile Methodology", "Risk Management", "Client Communication", "Budgeting"],
+    weeklyCapacity: 40,
+    availabilitySummary: "Med Capacity",
+    availabilityNotes: "Overseeing two major projects."
   },
   {
     id: 5,
@@ -85,13 +97,16 @@ const users: UserData[] = [
     role: "Architect",
     status: "Inactive",
     lastActive: "3 days ago",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop",
+    skills: ["CAD Software", "Residential Design"],
+    weeklyCapacity: 40,
+    availabilitySummary: "Inactive",
   },
   {
     id: 6,
     name: "Robert Johnson",
     email: "robert.johnson@example.com",
-    role: "Client",
+    role: "Client", // Clients typically wouldn't have skills/availability tracked this way
     status: "Active",
     lastActive: "Today at 8:50 AM",
     avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=32&h=32&fit=crop"
@@ -103,7 +118,11 @@ const users: UserData[] = [
     role: "Designer",
     status: "Active",
     lastActive: "Yesterday at 2:30 PM",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=32&h=32&fit=crop"
+    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=32&h=32&fit=crop",
+    skills: ["Interior Design", "Space Planning", "Material Selection"],
+    weeklyCapacity: 40,
+    availabilitySummary: "High Capacity",
+    availabilityNotes: "Available for new assignments."
   },
 ];
 
@@ -172,6 +191,26 @@ const getStatusBadgeColor = (status: "Active" | "Inactive") => {
 };
 
 const UsersPage: FC = () => {
+  const [users, setUsers] = useState<UserData[]>(initialUsers);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+
+  const handleOpenModal = (user: UserData) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleSaveUser = (updatedUser: UserData) => {
+    setUsers(users.map(user => user.id === updatedUser.id ? updatedUser : user));
+    handleCloseModal();
+    // Add a toast notification here in a real app
+  };
+
   return (
     <Layout>
       <div className="p-6">
@@ -221,6 +260,8 @@ const UsersPage: FC = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Skills</TableHead>
+                      <TableHead>Availability</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Last Active</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -247,13 +288,25 @@ const UsersPage: FC = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
+                          {user.skills && user.skills.length > 0
+                            ? `${user.skills.length} Skills`
+                            : user.role !== 'Client' ? 'No skills listed' : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {user.availabilitySummary
+                            ? user.availabilitySummary
+                            : user.role !== 'Client' ? '-' : 'N/A'}
+                        </TableCell>
+                        <TableCell>
                           <Badge className={getStatusBadgeColor(user.status)}>
                             {user.status}
                           </Badge>
                         </TableCell>
                         <TableCell>{user.lastActive}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">Edit</Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenModal(user)}>
+                            Edit
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -315,6 +368,12 @@ const UsersPage: FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <UserProfileModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        user={selectedUser}
+        onSave={handleSaveUser}
+      />
     </Layout>
   );
 };

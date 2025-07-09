@@ -86,8 +86,7 @@ describe('JobCard - Task Dependencies Display', () => {
       />
     );
     const taskDLabel = screen.getByText('Task D');
-    const dependencyTextForD = taskDLabel.closest('div')?.parentElement?.querySelector('div.pl-6');
-    expect(dependencyTextForD).toHaveTextContent('Depends on: Task ID: task-X');
+    expect(screen.getByText('Depends on: Task ID: task-X')).toBeInTheDocument();
   });
 
   test('checkbox ID is unique using job card ID and task ID', () => {

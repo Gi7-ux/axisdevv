@@ -223,7 +223,9 @@ describe('ResourceOverviewPage - Allocation Editing', () => {
       expect.arrayContaining([
         ...userToUpdate.currentAssignments, // original assignments
         expect.objectContaining({ projectId: mockProjectsList[0].projectId, allocatedHours: 10 }) // new assignment from mock modal save
-      ])
+// at the top of ResourceOverviewPage.test.tsx
+import ResourceOverviewPage from './ResourceOverviewPage';
+import { mockProjectsList } from './ResourceOverviewPage';
     );
   });
 

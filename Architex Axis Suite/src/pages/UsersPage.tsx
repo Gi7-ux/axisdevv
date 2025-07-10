@@ -35,7 +35,7 @@ import UserProfileModal, { UserData as ModalUserData } from "@/components/user/U
 
 // Keep UserData interface local to UsersPage for now, ensure compatibility with ModalUserData
 // In a larger app, this would be a shared type
-interface UserData extends ModalUserData {
+export interface UserData extends ModalUserData {
   currentAssignments?: { projectId: string; projectName: string; allocatedHours: number; projectDeadline?: Date }[];
 }
 

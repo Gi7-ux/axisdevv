@@ -37,24 +37,8 @@ const UserWorkloadCard: FC<UserWorkloadCardProps> = ({
   onEditAssignmentClick,
   onAddAssignmentClick
 }) => {
-interface UserAssignment {
-  projectId: string;
-  projectName: string;
-  /** Weekly hours allocated to this project */
-  allocatedHours: number;
-  projectDeadline?: Date;
-}
-
-export interface UserWorkloadData {
-  id: number;
-  name: string;
-  avatar?: string;
-  role: "Admin" | "Client" | "Architect" | "Designer" | "Project Manager";
-  /** User's total weekly capacity in hours */
-  weeklyCapacity?: number;
-  currentAssignments?: UserAssignment[];
-  skills?: string[];
-}
+  const { name, avatar, role, weeklyCapacity = 0, currentAssignments = [] } = user;
+  
   const getRoleBadgeColor = (role: UserWorkloadData["role"]) => {
     // This function should ideally be imported from a shared utils file
     switch (role) {

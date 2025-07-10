@@ -30,7 +30,7 @@ const ResourceOverviewPage: FC = () => {
   // For now, using a state variable that's a mutable copy of initialUsers
   const { toast } = useToast();
   // Replace JSON-based deep clone with built-in structuredClone for efficiency and fidelity
-  const [usersData, setUsersData] = useState<UserData[]>(() => structuredClone(initialUsers));
+  const [usersData, setUsersData] = useState<PageUserData[]>(() => structuredClone(initialUsers));
   const [teamMembersForDisplay, setTeamMembersForDisplay] = useState<PageUserData[]>([]);
 
   const [isEditAllocationModalOpen, setIsEditAllocationModalOpen] = useState(false);
@@ -59,11 +59,12 @@ const ResourceOverviewPage: FC = () => {
   };
 
   const handleSaveAssignment = (userId: number, assignmentData: ModalAssignmentData, isNew: boolean) => {
+    const projectInfo = mockProjectsList.find(p => p.projectId === assignmentData.projectId);
+    
     setUsersData(prevUsers =>
       prevUsers.map(user => {
         if (user.id === userId) {
           const updatedAssignments = [...(user.currentAssignments || [])];
-          const projectInfo = mockProjectsList.find(p => p.projectId === assignmentData.projectId);
 
           if (isNew) {
             // Ensure not adding a duplicate projectId silently, though modal filters this

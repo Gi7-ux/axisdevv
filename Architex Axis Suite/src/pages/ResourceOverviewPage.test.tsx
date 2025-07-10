@@ -96,9 +96,19 @@ jest.mock('@/components/allocation/EditAllocationModal', () => ({
         {assignmentToEdit && <p>Editing Project: {assignmentToEdit.projectName}</p>}
         {!assignmentToEdit && <p>Adding new assignment</p>}
         <button data-testid="mock-save-button" onClick={() => {
-          const projectToSave = assignmentToEdit ? assignmentToEdit.projectId : allProjects[0].projectId; // pick first for new
+          const projectToSave = assignmentToEdit
+            ? assignmentToEdit.projectId
+            : (allProjects[0]?.projectId || 'default-project'); // pick first for new, or fallback
           const hoursToSave = assignmentToEdit ? assignmentToEdit.allocatedHours + 5 : 10; // Adjust hours for test
-          onSaveAssignment(user.id, { projectId: projectToSave, allocatedHours: hoursToSave, projectName: allProjects.find(p=>p.projectId === projectToSave)?.projectName }, !assignmentToEdit);
+          onSaveAssignment(
+            user.id,
+            {
+              projectId: projectToSave,
+              allocatedHours: hoursToSave,
+              projectName: allProjects.find(p => p.projectId === projectToSave)?.projectName
+            },
+            !assignmentToEdit
+          );
         }}>
           Mock Save
         </button>

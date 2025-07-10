@@ -1,7 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResourceOverviewPage from './ResourceOverviewPage';
-
 // Mock the UserWorkloadCard to simplify page testing and avoid deep rendering
 jest.mock('@/components/user/UserWorkloadCard', () => ({
   __esModule: true,

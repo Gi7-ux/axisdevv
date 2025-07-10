@@ -125,3 +125,58 @@
 .sidebar-link.active {
   @apply bg-sidebar-accent text-primary;
 }
+
+/* FullCalendar Customizations */
+.fc { /* General FullCalendar container */
+  /* Use app's foreground color for text */
+  color: var(--foreground);
+}
+
+.fc .fc-toolbar-title {
+  color: var(--foreground); /* Ensure toolbar title uses app's text color */
+}
+
+.fc .fc-button {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  @apply disabled:opacity-50; /* Tailwind class for disabled state */
+}
+
+.fc .fc-button:hover {
+  background-color: hsl(var(--primary) / 0.9); /* Slightly darken on hover */
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: hsl(var(--primary) / 0.8); /* Even darker for active state */
+  border-color: hsl(var(--primary) / 0.8);
+}
+
+.fc .fc-daygrid-day-number,
+.fc .fc-col-header-cell-cushion {
+  color: var(--foreground); /* Day numbers and header text */
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: hsl(var(--accent) / 0.1); /* Subtle highlight for today */
+}
+
+.fc .fc-event {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.fc .fc-event:hover {
+  background-color: hsl(var(--secondary) / 0.9);
+}
+
+/* Border colors */
+.fc .fc-scrollgrid,
+.fc .fc-daygrid-day,
+.fc .fc-col-header-cell,
+.fc td,
+.fc th {
+  border-color: var(--border);
+}

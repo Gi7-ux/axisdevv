@@ -3,10 +3,12 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import jestPlugin from 'eslint-plugin-jest'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'jest.config.js'] }, // Also ignore jest.config.js
   {
+    // General TypeScript and React configuration
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -25,4 +27,17 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Jest specific configuration
+    files: ['**/*.test.{ts,tsx}'],
+    ...jestPlugin.configs['flat/recommended'],
+    languageOptions: {
+      globals: globals.jest,
+    },
+    rules: {
+      ...jestPlugin.configs['flat/recommended'].rules,
+      // You can add or override Jest specific rules here if needed
+      // e.g. 'jest/no-disabled-tests': 'warn',
+    }
+  }
 )

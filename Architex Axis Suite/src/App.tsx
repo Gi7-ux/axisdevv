@@ -10,6 +10,7 @@ import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NewProjectPage from "@/pages/NewProjectPage";
 import ProjectDetailPage from "@/pages/ProjectDetailPage";
+import CalendarPage from "@/pages/CalendarPage"; // Import the new Calendar page
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -28,6 +29,7 @@ function App() {
           <Route path="/files" element={<FilesPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} /> {/* Add route for CalendarPage */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

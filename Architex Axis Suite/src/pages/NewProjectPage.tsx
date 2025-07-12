@@ -46,6 +46,58 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Mock custom fields data (as defined in SettingsPage)
+const mockCustomFields = [
+  { id: 'cf_1', name: 'Client Contact Number', type: 'Text', entity: 'Project', isRequired: true },
+  { id: 'cf_2', name: 'Permit Status', type: 'Select', entity: 'Project', isRequired: true, options: ['Not Started', 'Submitted', 'Approved', 'Rejected'] },
+  { id: 'cf_3', name: 'Site Visit Required', type: 'Checkbox', entity: 'Task', isRequired: false },
+  { id: 'cf_4', name: 'Budget Allocation', type: 'Number', entity: 'Project', isRequired: false },
+  { id: 'cf_5', name: 'Next Follow-up Date', type: 'Date', entity: 'Project', isRequired: true },
+  { id: 'cf_6', name: 'Project Notes', type: 'Textarea', entity: 'Project', isRequired: false },
+];
+
+// Dynamically extend the schema based on custom fields
+const projectCustomFields = mockCustomFields.filter(f => f.entity === 'Project');
+let dynamicSchema = {};
+projectCustomFields.forEach(field => {
+  let fieldSchema;
+  switch (field.type) {
+    case 'Text':
+    case 'Textarea':
+    case 'Select':
+      fieldSchema = z.string();
+      if (field.isRequired) {
+        fieldSchema = fieldSchema.min(1, { message: `${field.name} is required.` });
+      } else {
+        fieldSchema = fieldSchema.optional();
+      }
+      break;
+    case 'Number':
+      // Zod's .number() can be tricky with form inputs which are strings
+      // A common approach is to use a string and transform it
+      fieldSchema = z.preprocess(
+        (a) => (a === '' ? undefined : parseFloat(String(a))),
+        field.isRequired ? z.number({ required_error: `${field.name} is required.` }) : z.number().optional()
+      );
+      break;
+    case 'Date':
+      fieldSchema = z.date({ required_error: `${field.name} is required.` });
+      if (!field.isRequired) {
+        fieldSchema = fieldSchema.optional();
+      }
+      break;
+    case 'Checkbox':
+      fieldSchema = z.boolean().default(false).optional();
+      break;
+    default:
+      fieldSchema = z.any().optional();
+  }
+  dynamicSchema[field.id] = fieldSchema;
+});
+
 
 // Form schema
 const formSchema = z.object({
@@ -70,6 +122,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
+  ...dynamicSchema,
 });
 
 // Client data
@@ -342,7 +395,130 @@ const NewProjectPage: FC = () => {
                       </FormItem>
                     )}
                   />
-                  
+
+                  {projectCustomFields.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Custom Fields</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Fill in the additional project details as defined by your workspace administrator.
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {projectCustomFields.map((customField) => (
+                      <FormField
+                        key={customField.id}
+                        control={form.control}
+                        name={customField.id}
+                        render={({ field }) => {
+                          switch (customField.type) {
+                            case 'Text':
+                              return (
+                                <FormItem>
+                                  <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder={`Enter ${customField.name}`} {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            case 'Textarea':
+                              return (
+                                <FormItem className="md:col-span-2">
+                                  <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder={`Enter ${customField.name}`} {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            case 'Number':
+                              return (
+                                <FormItem>
+                                  <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" placeholder={`Enter ${customField.name}`} {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            case 'Select':
+                              return (
+                                <FormItem>
+                                  <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder={`Select ${customField.name}`} />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {customField.options?.map(option => (
+                                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            case 'Date':
+                              return (
+                                <FormItem className="flex flex-col">
+                                  <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button
+                                          variant={"outline"}
+                                          className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                                        >
+                                          {field.value ? (
+                                            format(field.value, "PPP")
+                                          ) : (
+                                            <span>Pick a date</span>
+                                          )}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                      <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            case 'Checkbox':
+                                return (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 md:col-span-2">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                      <FormLabel>{customField.name}{customField.isRequired && ' *'}</FormLabel>
+                                    </div>
+                                  </FormItem>
+                                );
+                            default:
+                              return null;
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+
                   <div className="flex justify-end">
                     <Button type="submit">
                       Next <ChevronRight className="ml-2 h-4 w-4" />

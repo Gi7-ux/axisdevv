@@ -12,7 +12,8 @@ import {
   Shield,
   HardDrive,
   Globe,
-  UserCog
+  UserCog,
+  ClipboardList // New Icon for Custom Fields
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import {
@@ -45,6 +46,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+
+// Mock data for custom fields
+const mockCustomFields = [
+  {
+    id: 'cf_1',
+    name: 'Client Contact Number',
+    type: 'Text',
+    entity: 'Project',
+  },
+  {
+    id: 'cf_2',
+    name: 'Permit Status',
+    type: 'Select',
+    entity: 'Project',
+  },
+  {
+    id: 'cf_3',
+    name: 'Site Visit Required',
+    type: 'Checkbox',
+    entity: 'Task',
+  },
+  {
+    id: 'cf_4',
+    name: 'Budget Allocation',
+    type: 'Number',
+    entity: 'Project',
+  },
+  {
+    id: 'cf_5',
+    name: 'Next Follow-up Date',
+    type: 'Date',
+    entity: 'Project',
+  },
+];
+
 
 const SettingsPage: FC = () => {
   const isMobile = useIsMobile();
@@ -98,6 +151,10 @@ const SettingsPage: FC = () => {
               <TabsTrigger value="security" className="flex items-center gap-1">
                 <Shield className="h-4 w-4" />
                 {!isMobile && "Security"}
+              </TabsTrigger>
+              <TabsTrigger value="custom-fields" className="flex items-center gap-1">
+                <ClipboardList className="h-4 w-4" />
+                {!isMobile && "Custom Fields"}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -867,6 +924,65 @@ const SettingsPage: FC = () => {
                   </div>
                   
                   <Button variant="outline">View Full Login History</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Custom Fields Settings */}
+          <TabsContent value="custom-fields">
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Custom Fields</CardTitle>
+                <CardDescription>
+                  Create and manage custom fields for your projects and tasks.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-right mb-4">
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Create New Field
+                  </Button>
+                </div>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Field Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Applies To</TableHead>
+                        <TableHead>
+                          <span className="sr-only">Actions</span>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockCustomFields.map((field) => (
+                        <TableRow key={field.id}>
+                          <TableCell className="font-medium">{field.name}</TableCell>
+                          <TableCell>{field.type}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{field.entity}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>

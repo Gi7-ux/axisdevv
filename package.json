@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/list": "^6.1.18",
+    "@fullcalendar/react": "^6.1.18",
+    "@fullcalendar/timegrid": "^6.1.18"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0"
+  }
+}

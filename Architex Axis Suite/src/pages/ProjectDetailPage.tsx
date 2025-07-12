@@ -49,7 +49,18 @@ interface ProjectData {
   budget: number;
   // team: TeamMember[]; // Old structure
   teamAssignments: { userId: string; allocatedHours: number; role?: string }[]; // New structure
+  customFields?: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
+
+// Mock custom fields data (as defined in SettingsPage)
+const mockCustomFields = [
+  { id: 'cf_1', name: 'Client Contact Number', type: 'Text', entity: 'Project', isRequired: true },
+  { id: 'cf_2', name: 'Permit Status', type: 'Select', entity: 'Project', isRequired: true, options: ['Not Started', 'Submitted', 'Approved', 'Rejected'] },
+  { id: 'cf_3', name: 'Site Visit Required', type: 'Checkbox', entity: 'Task', isRequired: false },
+  { id: 'cf_4', name: 'Budget Allocation', type: 'Number', entity: 'Project', isRequired: false },
+  { id: 'cf_5', name: 'Next Follow-up Date', type: 'Date', entity: 'Project', isRequired: true },
+  { id: 'cf_6', name: 'Project Notes', type: 'Textarea', entity: 'Project', isRequired: false },
+];
 
 // This TeamMember type is used by JobCard and TeamMemberDialog.
 // It's more of a display representation of a user.
@@ -71,7 +82,14 @@ const project: ProjectData = {
     { userId: "1", allocatedHours: 120, role: "Project Manager" }, // Alex Turner (User ID 1)
     { userId: "2", allocatedHours: 200, role: "Architect" },       // Maya Patel (User ID 2)
     { userId: "3", allocatedHours: 150, role: "Designer" },        // Sam Chen (User ID 3)
-  ]
+  ],
+  customFields: {
+    'cf_1': '+1-234-567-8901',
+    'cf_2': 'Submitted',
+    'cf_4': 500000,
+    'cf_5': new Date(2025, 3, 1), // April 1, 2025
+    'cf_6': 'Initial client meeting was positive. They are looking for a blend of modern and industrial styles. Key focus on sustainability and natural light.',
+  }
 };
 
 // Sample user data that might be fetched or available globally
@@ -480,7 +498,7 @@ const ProjectDetailPage: FC = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Progress</CardTitle>
@@ -525,6 +543,36 @@ const ProjectDetailPage: FC = () => {
               </div>
             </CardContent>
           </Card>
+
+          {project.customFields && Object.keys(project.customFields).length > 0 && (
+            <Card className="md:col-span-2 lg:col-span-1">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Additional Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 pt-2">
+                {Object.entries(project.customFields).map(([fieldId, value]) => {
+                  const fieldDef = mockCustomFields.find(f => f.id === fieldId);
+                  if (!fieldDef) return null;
+
+                  let displayValue = value;
+                  if (fieldDef.type === 'Date' && value instanceof Date) {
+                    displayValue = format(value, "MMM d, yyyy");
+                  } else if (fieldDef.type === 'Checkbox') {
+                    displayValue = value ? 'Yes' : 'No';
+                  } else if (fieldDef.type === 'Number' && typeof value === 'number') {
+                    displayValue = value.toLocaleString();
+                  }
+
+                  return (
+                    <div key={fieldId} className="text-sm">
+                      <p className="text-muted-foreground">{fieldDef.name}</p>
+                      <p className="font-medium">{displayValue.toString()}</p>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
         </div>
         
         <Tabs defaultValue="tasks" className="space-y-4">
